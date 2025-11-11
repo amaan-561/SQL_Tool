@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import datetime
+import openpyxl
+import xlrd
 import io
 
 # --- Helper Functions (Unchanged) ---
@@ -69,7 +71,7 @@ def generate_chunked_insert_queries(df, table_name, chunk_size=1000, use_ignore=
 st.set_page_config(layout="wide")
 st.title("📄 Excel/CSV to MySQL Batch Insert Generator")
 
-uploaded_file = st.file_uploader("Upload your Excel or CSV file", type=["xlsx", "csv"])
+uploaded_file = st.file_uploader("Upload your Excel or CSV file", type=["xls", "xlsx", "csv"])
 
 if uploaded_file:
     df = None
@@ -78,8 +80,10 @@ if uploaded_file:
             file_type = uploaded_file.name.split('.')[-1]
             if file_type == 'csv':
                 df = pd.read_csv(uploaded_file)
-            else:
+            elif file_type in ['xlsx','xls']:
                 df = pd.read_excel(uploaded_file)
+            else:
+                st.error("Unsupported file type. Please upload a .csv, .xls, or .xlsx file.")
     except Exception as e:
         st.error(f"Error reading file: {e}")
         st.stop()
